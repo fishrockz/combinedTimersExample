@@ -8,6 +8,47 @@
 // test pulses, and 1 input to receive the pulses
 PulseEventOutput myOut;
 PulseEventInput myIn;
+UnevenTimeTriger UnevenTimerBlock;
+
+
+uint32_t reversvalueA [] = { 
+10,
+40,
+500,
+4,
+300,
+20,
+50,
+20,
+5,
+20,
+
+};
+
+int LEDSTATE;
+int trigerPin=12;
+
+void blockFunction(EventBaseObject * ThisFunctionsInfoPointer){
+	
+	Serial.println ("this is the fast function");
+	
+	if (LEDSTATE==1){LEDSTATE=0;}else{LEDSTATE=1;}
+	digitalWrite(ledPin, LEDSTATE);
+	
+
+}
+
+void generalFunction(EventBaseObject * ThisFunctionsInfoPointer){
+	digitalWrite(trigerPin, 0);
+	Serial.println ("this is the slow function");
+
+	if (LEDSTATE==1){LEDSTATE=0;}else{LEDSTATE=1;}
+	digitalWrite(ledPin, LEDSTATE);
+	
+
+}
+
+
 
 int count=0;
 int state=0;
@@ -34,6 +75,10 @@ PulseEventObject* ThisFunctionsInfo = static_cast<PulseEventObject*>(ThisFunctio
 					Serial.print("EventFunction called: State changed: ");
 					Serial.println(curstate);
 					state=curstate;
+					reversvalueA[4]=state*10;
+					LEDSTATE=1;digitalWrite(ledPin, LEDSTATE);
+					digitalWrite(trigerPin, 1);
+					UnevenTimerBlock.StartTimer(reversvalueA,(uint32_t)10,generalFunction,blockFunction);
 				}
 			}
 		}
@@ -45,7 +90,13 @@ PulseEventObject* ThisFunctionsInfo = static_cast<PulseEventObject*>(ThisFunctio
 }
 
 
-void setup() {while(!Serial){};delay(200);Serial.println("setting off A");
+void setup() {
+
+	pinMode(ledPin, OUTPUT);
+	pinMode(trigerPin, OUTPUT);
+	
+	while(!Serial){};delay(200);Serial.println("setting off A");
+
 	myOut.begin(9);  // connect pins 9 and 10 together...
 	myIn.begin(10, PulseEventFunction);
 	myOut.write(1, 600.03);
@@ -62,8 +113,8 @@ int output=0;
 void loop() {
 //Serial.println("going");
 
-	delay(500);
-	myOut.write(3, 1000 + 30.5*output);
+	delay(1000);
+	myOut.write(3, 1000 + 60.*output);// as PulseEventFunction rounds to the nearst 100ms and 60 isnt a multipule of 100 you get a paten on the scope of between 1 to 3 repeted pulses then a gap of a second or so. also some of the pulse train changes according to this value
 	output++;
 	if (output>20) output=0;
 
