@@ -29,8 +29,10 @@ int LEDSTATE;
 int trigerPin=12;
 
 void blockFunction(EventBaseObject * ThisFunctionsInfoPointer){
+	UnevenTimeEventObject* ThisFunctionsInfo = static_cast<UnevenTimeEventObject*>(ThisFunctionsInfoPointer);
+	Serial.print ("this is the fast function: ");
+	Serial.println (ThisFunctionsInfo->CurentTimerIndex);
 	
-	Serial.println ("this is the fast function");
 	
 	if (LEDSTATE==1){LEDSTATE=0;}else{LEDSTATE=1;}
 	digitalWrite(ledPin, LEDSTATE);
@@ -39,8 +41,10 @@ void blockFunction(EventBaseObject * ThisFunctionsInfoPointer){
 }
 
 void generalFunction(EventBaseObject * ThisFunctionsInfoPointer){
+	UnevenTimeEventObject* ThisFunctionsInfo = static_cast<UnevenTimeEventObject*>(ThisFunctionsInfoPointer);
 	digitalWrite(trigerPin, 0);
-	Serial.println ("this is the slow function");
+	Serial.print ("this is the slow function: ");
+	Serial.println (ThisFunctionsInfo->CurentTimerIndex);
 
 	if (LEDSTATE==1){LEDSTATE=0;}else{LEDSTATE=1;}
 	digitalWrite(ledPin, LEDSTATE);
